@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        async function updateUnits() {
+            const category = document.getElementById('category').value;
+            const fromUnit = document.getElementById('from_unit');
+            const toUnit = document.getElementById('to_unit');
+
+            const response = await fetch(`/get_units/${category}`);
+            const units = await response.json();
+
+            fromUnit.innerHTML = '';
+            toUnit.innerHTML = '';
+
+            units.forEach(unit => {
+                fromUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+                toUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Unit Converter</h1>
+        <form method="POST">
+            <label for="category">Category:</label>
+            <select id="category" name="category" required onchange="updateUnits()">
+                <option value="" disabled selected>Select a category</option>
+                {% for category in units.keys() %}
+                <option value="{{ category }}">{{ category.capitalize() }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="value">Value:</label>
+            <input type="number" step="0.01" id="value" name="value" required>
+
+            <label for="from_unit">From Unit:</label>
+            <select id="from_unit" name="from_unit" required></select>
+
+            <label for="to_unit">To Unit:</label>
+            <select id="to_unit" name="to_unit" required></select>
+
+            <button type="submit">Convert</button>
+        </form>
+
+        {% if result is not none %}
+        <div class="result">
+            <h3>Converted Value: {{ result }}</h3>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
